@@ -4,14 +4,13 @@ ini_set('display_errors', 1);
 
 $filename = 'game.zip';
 
-if (!file_exists($filename)) {
-    echo "❌ Ошибка: Файл <b>$filename</b> не найден в корневой директории!<br>";
-    echo "Список файлов в папке: <pre>";
-    print_r(scandir(__DIR__));
-    echo "</pre>";
-} else {
+if (file_exists($filename)) {
+    // Даем права на чтение/запись файлу перед открытием
+    chmod($filename, 0777); 
+    
     $zip = new ZipArchive;
     $res = $zip->open($filename);
+    
     if ($res === TRUE) {
         $zip->extractTo(__DIR__ . '/');
         $zip->close();
@@ -22,11 +21,13 @@ if (!file_exists($filename)) {
             foreach ($files as $file) {
                 rename(__DIR__ . '/home/' . $file, __DIR__ . '/' . $file);
             }
-            rmdir(__DIR__ . '/home');
+            @rmdir(__DIR__ . '/home');
         }
-        echo "✅ Ура! Все файлы успешно распакованы.";
+        echo "✅ Успех! Игра распакована. Можешь переходить на главную.";
     } else {
-        echo "❌ ZipArchive не смог открыть файл. Код ошибки: " . $res;
+        echo "❌ Ошибка открытия: Код $res. Попробуй пересоздать ZIP на телефоне через ZArchiver.";
     }
+} else {
+    echo "❌ Файл game.zip не найден. Проверь имя на GitHub!";
 }
 ?>
