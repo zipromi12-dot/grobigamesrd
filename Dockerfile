@@ -1,15 +1,13 @@
-FROM php:5.6-apache
+FROM php:7.4-apache
 
-# Переключаем репозитории на архивные, так как Debian Jessie больше не поддерживается
-RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list \
-    && sed -i 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list \
-    && sed -i '/stretch-updates/d' /etc/apt/sources.list
-
-# Устанавливаем расширения
+# Устанавливаем расширения для ZIP и MySQL (PDO и mysqli)
 RUN apt-get update && apt-get install -y \
         libzip-dev \
         zip \
-    && docker-php-ext-install mysql mysqli pdo pdo_mysql
+    && docker-php-ext-install zip mysqli pdo pdo_mysql
+
+# Включаем модуль перенаправления (нужен для многих игр)
+RUN a2enmod rewrite
 
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html/
