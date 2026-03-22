@@ -1,13 +1,18 @@
 FROM php:5.6-apache
 
-# Устанавливаем расширение для работы с ZIP и MySQL
-RUN apt-get update && apt-get install -y libzip-dev zip \
-    && docker-php-ext-install zip mysql mysqli pdo pdo_mysql
+# Отключаем проверку сертификатов для старых репозиториев, если они барахлят
+RUN echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf.d/99no-check-valid-until
 
-# Копируем всё содержимое репозитория в папку сервера
+# Устанавливаем только самое необходимое
+RUN apt-get update && apt-get install -y \
+        libzip-dev \
+        zip \
+    && docker-php-ext-install mysql mysqli pdo pdo_mysql
+
+# Включаем модуль rewrite для Apache (часто нужен для игр)
+RUN a2enmod rewrite
+
 COPY . /var/www/html/
-
-# Даем права на запись, чтобы скрипт мог распаковать архив
 RUN chown -R www-data:www-data /var/www/html/
 
 EXPOSE 80
